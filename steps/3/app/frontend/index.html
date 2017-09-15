@@ -1,0 +1,47 @@
+<!doctype html>
+<html>
+  <head>
+    <title>K8s chat</title>
+    <style>
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+      body { font: 13px Helvetica, Arial; }
+      form { background: #bbb; padding: 3px; position: fixed; bottom: 0; width: 100%; }
+      form input { border: 0; padding: 10px; width: 90%; margin-right: .5%; }
+      form button { width: 9%; background: #3f3; border: none; padding: 10px; }
+      #messages { list-style-type: none; margin: 0; padding: 0; }
+      #messages li { margin: 5px 5px; padding: 5px 10px; background: #eee; border-radius: 2px 2px; float: left; clear:both; }
+    </style>
+  </head>
+  <body>
+    <ul id="messages"></ul>
+    <form action="">
+      <input id="text"/>
+      <button id="btn">Send</button>
+    </form>
+    <script src="/socket.io.js"></script>
+    <script>
+      window.addEventListener("load", function () {
+        var socket = io("http://localhost:8081"),
+          button = document.getElementById("btn");
+        
+        button.onclick = function() {  
+          var message = document.getElementById('text').value;
+
+          socket.emit('chat message', message);
+          
+          document.getElementById('text').value = '';
+
+          return false;
+        }
+
+        socket.on('chat message', function(msg){
+          var li = document.createElement('li');
+
+          li.appendChild(document.createTextNode(msg));
+          
+          document.getElementById('messages').appendChild(li);
+        });
+      }, false);
+    </script>
+  </body>
+</html>

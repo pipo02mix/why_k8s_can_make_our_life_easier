@@ -1,2 +1,4 @@
 cluster/.vagrant/
+steps/*/app/backend/node_modules/
+steps/*/app/frontend/node_modules/
 steps/*/app/node_modules/
