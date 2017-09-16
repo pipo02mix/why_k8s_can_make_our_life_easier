@@ -21,9 +21,4 @@ spec:
       containers:   
       - name: my-awesome-backend-app
         image: 172.17.4.1:5000/my-awesome-backend-app:0.0.2
-        livenessProbe:
-          httpGet:
-            path: /
-            port: 8081
-          initialDelaySeconds: 15
-          timeoutSeconds: 1
+

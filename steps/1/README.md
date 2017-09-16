@@ -8,7 +8,7 @@ Play a bit with the pod resource
 ```bash
 cat single_pod.yaml
 ```
-+ Create the por resource with the three containers inside
++ Create the pod resource with the three containers inside
 ```bash
 kubectl create -f single_pod.yaml
 ```
@@ -16,13 +16,17 @@ kubectl create -f single_pod.yaml
 ```bash
 kubectl get pod
 ```
++ See resource description
+```bash
+kubectl describe po/single-pod
+``` 
 + Show app container logs
 ```bash
 kubectl logs -f single-pod -c my-awesome-app
 ```
 + Ssh to curl container and make a request to app container
 ```bash
-kubectl exec single-pod -c my-awesome-app -ti bash
+kubectl exec single-pod -c curl-container -ti sh
 curl http://localhost:8080
 ```
 + Show pod information with node information
