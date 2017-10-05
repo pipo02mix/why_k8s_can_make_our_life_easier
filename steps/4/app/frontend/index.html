@@ -7,7 +7,7 @@
       body { font: 13px Helvetica, Arial; background-color: #eee; }
       form { background: #bbb; padding: 3px; position: fixed; bottom: 0; width: 100%; }
       form input { border: 0; padding: 10px; width: 90%; margin-right: .5%; }
-      form button { width: 9%; background: #fff; border: none; padding: 10px; }
+      form button { width: 9%; background: #3f3; border: none; padding: 10px; }
       #messages { list-style-type: none; margin: 0; padding: 0; }
       #messages li { margin: 5px 5px; padding: 5px 10px; background: #eee; border-radius: 2px 2px; float: left; clear:both; }
     </style>
@@ -22,7 +22,8 @@
     <script>
       window.addEventListener("load", function () {
         var socket = io("http://localhost:8081"),
-          button = document.getElementById("btn");
+          button = document.getElementById("btn"),
+          initialized = false;
         
         button.onclick = function() {  
           var message = document.getElementById('text').value;
@@ -35,13 +36,30 @@
         }
 
         socket.on('chat message', function(msg){
-          var li = document.createElement('li');
+          insertMessage(msg);
+        });
 
-          li.appendChild(document.createTextNode(msg));
-          
-          document.getElementById('messages').appendChild(li);
+        socket.on('history', function(msgs){
+          if (initialized === false) {
+            initialized = true;
+            msgs.forEach(function (msg) {
+              insertMessage(msg);
+            });
+          }
+        });
+
+        socket.on('connect', function () {
+          socket.emit('history', '1');
         });
       }, false);
+
+      function insertMessage(msg) {
+       var li = document.createElement('li');
+    
+       li.appendChild(document.createTextNode(msg));
+
+       document.getElementById('messages').appendChild(li); 
+      }
     </script>
   </body>
 </html>

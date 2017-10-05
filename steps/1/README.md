@@ -37,6 +37,7 @@ kubectl get po -o wide
 ```bash
 ssh core@<NODE_IP> -L 8080:<POD_CLUSTER_IP>:8080
 ```
+Open localhost:8080
 + Delete pod 
 ```bash
 kubectl delete po single-pod

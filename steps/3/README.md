@@ -1,5 +1,5 @@
 
-# Step 2
+# Step 3
 
 Check how deployment resource manage pods
 
@@ -27,7 +27,7 @@ ssh core@<NODE_IP> -L 8080:<FRONT_POD_IP>:8080
 ```
 + Release a new deployment
 ```bash
-kubectl set image deploy/my-awesome-frontend-app my-awesome-frontend-app=172.17.4.1:5000/my-awesome-frontend-app:0.0.2 --record
+kubectl set image deploy/my-awesome-frontend-app front-app=172.17.4.1:5000/my-awesome-frontend-app:0.0.2 --record
 kubectl rollout status deploy/my-awesome-frontend-app
 ssh core@<NODE_IP> -L 8080:<NEW_FRONT_POD_IP>:8080
 ``` 

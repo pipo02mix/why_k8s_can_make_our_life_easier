@@ -4,10 +4,26 @@ metadata:
   name: single-pod
 spec:
 
+  restartPolicy: Never
+
+  volumes:
+  - name: shared-data
+    emptyDir: {}
+
   containers:
 
   - name: my-awesome-app
     image: 172.17.4.1:5000/my-awesome-app:0.0.1
+    livenessProbe:
+      httpGet:
+        path: /
+        port: 8080
+      initialDelaySeconds: 15
+      timeoutSeconds: 1
+    imagePullPolicy: Always
+    env:
+    - name: NODE_ENV
+      value: production
     volumeMounts:
     - name: shared-data
       mountPath: /var/www/app/config
@@ -25,8 +41,3 @@ spec:
     command: ["/bin/sh"]
     args: ["-c", "while true; do echo hi; done"]
 
-  volumes:
-  - name: shared-data
-    emptyDir: {}
-
-  restartPolicy: Never

@@ -1,0 +1,12 @@
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: my-awesome-ingress
+spec:
+  rules:
+  - host: my-awesome-app.com
+    http:
+      paths:
+      - backend:
+          serviceName: my-awesome-frontend-app
+          servicePort: 8080
