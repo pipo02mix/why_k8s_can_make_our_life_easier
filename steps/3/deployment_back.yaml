@@ -1,7 +1,7 @@
 apiVersion: extensions/v1beta1
 kind: Deployment
 metadata:
-  name: my-awesome-backend-app
+  name: my-awesome-back
 spec:
   replicas: 3
       

@@ -4,9 +4,9 @@ const app = require('express')(),
   ini = require('ini');
 
 app.get('/', function(req, res){
-  let config = ini.parse(fs.readFileSync('./config/config.ini', 'utf-8'));
+ // let config = ini.parse(fs.readFileSync('./config/config.ini', 'utf-8'));
   
-  res.send(`<h1>${config.title}</h1>`);
+  res.send(`<h1> It looks like it is working </h1>`);
 });
 
 http.listen(8080, function(){
