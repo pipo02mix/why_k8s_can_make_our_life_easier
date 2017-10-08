@@ -1,0 +1,14 @@
+piVersion: v1
+kind: Pod
+metadata:
+  name: port-proxy
+spec:
+  containers:
+  - name: proxy-https
+    image: gcr.io/google_containers/proxy-to-service:v2
+    args: [ "tcp", "8080", "my-awesome-front-svc" ]
+    ports:
+    - name: http
+      protocol: TCP
+      containerPort: 8080
+      hostPort: 8080
