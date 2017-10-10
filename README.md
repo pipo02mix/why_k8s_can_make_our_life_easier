@@ -1,7 +1,7 @@
 
 # Why Kubernetes can make your life easier
 
-Guide to explain kubernetes concepts through examples
+Guide to explain kubernetes concepts through examples ( [slides](https://pipo02mix.github.io/why_k8s_can_make_our_life_easier/#/) )
 
 ## Steps
 
