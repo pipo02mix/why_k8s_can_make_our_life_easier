@@ -1,0 +1,50 @@
+BOX_IMAGE = "ubuntu/xenial64"
+
+NODE_COUNT = 2
+MASTER_MEMORY = "2048"
+NODE_MEMORY = "1024"
+MASTER_IP = "172.17.1.101"
+NODE_IP = "172.17.1."
+POD_CIDR = "192.168.0.0/16"
+
+#Token needed by kubeadm to create the cluster
+KUBETOKEN = "c019ee.968a33e7d8e6ba0e"
+
+Vagrant.configure("2") do |config|
+  config.vm.box = BOX_IMAGE
+  config.vm.box_check_update = false
+
+  config.vm.provider "virtualbox" do |l|
+    l.cpus = 1
+    l.memory = "#{NODE_MEMORY}"
+  end
+
+  config.vm.provision :shell, :path => "kubeadm_provision.sh"
+
+  config.hostmanager.enabled = true
+  config.hostmanager.manage_guest = true
+
+  # MASTER
+  config.vm.define "master" do |subconfig|
+    subconfig.vm.hostname = "master"
+    subconfig.vm.network :private_network, ip: MASTER_IP
+    subconfig.vm.provider :virtualbox do |vb|
+      vb.customize ["modifyvm", :id, "--cpus", "2"]
+      vb.customize ["modifyvm", :id, "--memory", "#{MASTER_MEMORY}"]
+    end
+    subconfig.vm.provision :shell, path: "./master.sh", env: {"POD_CIDR" => POD_CIDR, "KUBETOKEN" => KUBETOKEN, "MASTER_IP" => MASTER_IP}
+    subconfig.vm.provision :shell, inline: "sudo chmod 666 /etc/kubernetes/admin.conf"
+  end
+  # END MASTER
+
+  # NODE
+  (1..NODE_COUNT).each do |i|
+    config.vm.define "node#{i}" do |subconfig|
+      subconfig.vm.hostname = "node#{i}"
+      subconfig.vm.network :private_network, ip: NODE_IP + "#{i + 10}"
+      subconfig.vm.provision :shell, path: "./node.sh", env: {"KUBETOKEN" => KUBETOKEN, "MASTER_IP" => MASTER_IP}
+    end
+  end
+  # END NODE
+
+end
