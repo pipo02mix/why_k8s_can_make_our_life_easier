@@ -9,6 +9,10 @@ EOF
 
 apt-get update
 apt-get install -y docker.io kubelet kubeadm kubectl kubernetes-cni
+apt-get install -y locales locales-all
+export LC_ALL="en_US.UTF-8"
+export LANG="en_US.UTF-8"
+export LANGUAGE="en_US.UTF-8"
 
 systemctl enable kubelet && systemctl start kubelet
 systemctl enable docker && systemctl start docker
