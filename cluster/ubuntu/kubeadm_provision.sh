@@ -8,7 +8,7 @@ deb http://apt.kubernetes.io/ kubernetes-xenial main
 EOF
 
 apt-get update
-apt-get install -y docker.io kubelet kubeadm kubectl kubernetes-cni language-pack-UTF-8
+apt-get install -y docker.io kubelet kubeadm kubectl kubernetes-cni
 
 systemctl enable kubelet && systemctl start kubelet
 systemctl enable docker && systemctl start docker
