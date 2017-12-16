@@ -1,0 +1,16 @@
+apiVersion: monitoring.coreos.com/v1alpha1
+kind: Alertmanager
+metadata:
+  name: main
+  namespace: tectonic-system
+  labels:
+    k8s-app: alertmanager
+    alertmanager: main
+spec:
+  replicas: 2
+  baseImage: quay.io/prometheus/alertmanager
+  version: v0.7.1
+  externalUrl: https://console.tectonicsandbox.com/prometheus
+  resources:
+    requests:
+      memory: 40Mi

@@ -1,0 +1,59 @@
+apiVersion: v1
+data:
+  config.yaml: |
+    issuer: https://console.tectonicsandbox.com/identity
+    storage:
+      type: kubernetes
+      config:
+        inCluster: true
+    web:
+      http: 0.0.0.0:5556
+    grpc:
+      addr: 0.0.0.0:5557
+      tlsCert: /etc/tectonic-identity-grpc-server-secret/tls-cert
+      tlsKey: /etc/tectonic-identity-grpc-server-secret/tls-key
+      tlsClientCA: /etc/tectonic-identity-grpc-server-secret/ca-cert
+    frontend:
+      theme: 'tectonic'
+      issuer: 'Tectonic Identity'
+    oauth2:
+      skipApprovalScreen: true
+    staticClients:
+    - id: tectonic-console
+      redirectURIs:
+      - 'https://console.tectonicsandbox.com/auth/callback'
+      - 'https://console.tectonicsandbox.com/prometheus/auth/callback'
+      - 'https://console.tectonicsandbox.com/alertmanager/auth/callback'
+      name: 'Tectonic Console'
+      secret: m4o2KlGlFe6K_UL9KdEQBg
+    - id: tectonic-kubectl
+      public: true
+      trustedPeers:
+      - tectonic-console
+      name: 'Kubectl'
+      secret: Lb1z5RbAsLTPWFXxphSGlw
+    enablePasswordDB: true
+    staticPasswords:
+    - email: "admin@example.com"
+      hash: "$2a$04$MoyTYe7vGtkCj81u53BKkOztPTxo4b5cilhnPryhYGFQI.qD3Y8YC"
+      username: "admin"
+      userID: "aujq0eB8DYJPBJrr3WnF2w"
+    - email: "test1@example.com"
+      # bcrypt hash for string "password"
+      hash: "$2a$10$2b2cU8CPhOTaGrs1HRQuAueS7JTT5ZHsHSzYiFPm1leZck7Mc8T4W"
+      username: "test1" # username to display. NOT used during login.
+      # userID randomly generated using uuidgen.
+      userID: "1d55c7c4-a76d-4d74-a257-31170f2c4845"
+  consoleClientID: tectonic-console
+  consoleSecret: m4o2KlGlFe6K_UL9KdEQBg
+  issuer: https://console.tectonicsandbox.com/identity
+  kubectlClientID: tectonic-kubectl
+  kubectlSecret: Lb1z5RbAsLTPWFXxphSGlw
+kind: ConfigMap
+metadata:
+  creationTimestamp: 2017-11-10T09:05:55Z
+  name: tectonic-identity
+  namespace: tectonic-system
+  resourceVersion: "167343"
+  selfLink: /api/v1/namespaces/tectonic-system/configmaps/tectonic-identity
+  uid: 5c351a8a-c5f6-11e7-8c50-080027b424ef
