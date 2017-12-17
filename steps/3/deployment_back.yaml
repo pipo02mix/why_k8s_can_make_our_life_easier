@@ -20,5 +20,5 @@ spec:
     spec:
       containers:   
       - name: back-app
-        image: 172.17.1.1:5000/my-awesome-backend-app:0.0.2
+        image: 10.101.91.182:5000/my-awesome-backend-app:0.0.2
 
