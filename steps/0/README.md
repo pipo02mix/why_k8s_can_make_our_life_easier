@@ -5,15 +5,15 @@
 
 There are three kind of clusters.
 
-- One is using (coreOS and vagrant recipe)[]. The problem is with new versions of coreOS
-there are some problems because the recipe is no more maintained by CoreOS.
+- [One is using (coreOS and vagrant recipe)[]. The problem is with new versions of coreOS
+there are some problems because the recipe is no more maintained by CoreOS.](https://github.com/pipo02mix/why_k8s_can_make_our_life_easier/tree/master/cluster/coreos)
 
-- Now CoreOS encourages use Tectonic as installer and tool to run Kubernetes. There are a free 
-version for less than 10 nodes clusters.
+- [Now CoreOS encourages use Tectonic as installer and tool to run Kubernetes. There are a free 
+version for less than 10 nodes clusters.](https://github.com/pipo02mix/why_k8s_can_make_our_life_easier/tree/master/cluster/tectonic)
 
-- [Last one and recommended is use kubeadm, vagrant and Ubuntu as OS.](/)
+- [Last one and recommended is use kubeadm, vagrant and Ubuntu as OS.](https://github.com/pipo02mix/why_k8s_can_make_our_life_easier/tree/master/cluster/ubuntu)
 
-Explain basics of a cluster
+Check some default components in a bare cluster
 
 + Display the nodes
 ```bash
@@ -62,4 +62,24 @@ And now run a pod in the k8s cluster
 ```
  kubectl run -i --tty busybox --image=10.101.91.182:5000/busybox:latest --restart=Never -- sh 
 ```
-> This is IP (10.101.91.182) is the fix cluster Ip assigned to the registry (check the yaml) 
+> This is IP (10.101.91.182) is the fix cluster Ip assigned to the registry (check the yaml)
+
+ ## Install helm
+ 
+Use helm to install apps or tools in kubernetes cluster is a good idea. They are created by the community
+with the best practices agreed by different contributors. Further, helm help to mantain version, run releases and rollbacks, and
+use a central repository to save these receipts.
+
+To install helm please [follow the official instructions](https://github.com/kubernetes/helm/blob/master/docs/install.md)
+
+Since RBAC is enabled by default in new kubernetes versions we need to run helm with permissions.
+Helm offers a client for run the actions and a server running as pod to interpret the commands. The
+server is called Tiller and needs to run a [service account](https://kubernetes.io/docs/tasks/configure-pod-container/configure-service-account/) with the right permissions.
+ 
+```
+kubectl -n kube-system create sa tiller
+kubectl create clusterrolebinding tiller --clusterrole cluster-admin --serviceaccount=kube-system:tiller
+helm init --service-account tiller
+``` 
+
+Helm client uses kubeconfig for connecting with kubernetes.
