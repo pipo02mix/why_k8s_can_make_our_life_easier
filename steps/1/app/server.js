@@ -1,11 +1,7 @@
 const app = require('express')(),
-  http = require('http').Server(app),
-  fs = require('fs'),
-  ini = require('ini');
+  http = require('http').Server(app);
 
 app.get('/', function(req, res){
- // let config = ini.parse(fs.readFileSync('./config/config.ini', 'utf-8'));
-  
   res.send(`<h1> It looks like it is working </h1>`);
 });
 

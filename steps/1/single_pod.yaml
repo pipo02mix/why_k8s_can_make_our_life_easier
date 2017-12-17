@@ -7,21 +7,21 @@ spec:
   containers:
 
   - name: my-awesome-app
-    image: 172.17.4.1:5000/my-awesome-app:0.0.1
+    image: 10.101.91.182:5000/my-awesome-app:0.0.1
     volumeMounts:
     - name: shared-data
       mountPath: /var/www/app/config
 
   - name: echo-container
-    image: 172.17.4.1:5000/debian:0.0.1
+    image: debian
     volumeMounts:
     - name: shared-data
       mountPath: /pod-data
     command: ["/bin/sh"]
-    args: ["-c", "echo title=my-title > /pod-data/config.ini"]
+    args: ["-c", "echo title=\"Looks like sharing volumes and network between containers works\" > /pod-data/config.ini"]
 
   - name: curl-container
-    image: 172.17.4.1:5000/curl-container:0.0.1
+    image: yauritux/busybox-curl
     command: ["/bin/sh"]
     args: ["-c", "while true; do echo hi; done"]
 
