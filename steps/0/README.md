@@ -22,7 +22,7 @@ kubectl get cs
 ```
 + Get components from kubernetes
 ```bash
-kubectl get pod --n kube-system
+kubectl get pod -n kube-system
 ```
 
 ## Install a self contained registry
