@@ -9,6 +9,10 @@
 
 ## Instructions
 
+- Install required plugins
+```
+vagrant plugin install vagrant-hostmaster vagrant-scp
+```
 - Provision and start the cluster
 ```
 vagrant up
@@ -21,5 +25,5 @@ vagrant scp master:/etc/kubernetes/admin.conf ./kubeconfig
 
 - Check if it works
 ```
-kubectl get po --kubeconfg ./kubeconfig
+kubectl get po --kubeconfig ./kubeconfig
 ```
