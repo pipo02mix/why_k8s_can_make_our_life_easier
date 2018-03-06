@@ -4,9 +4,9 @@ metadata:
   name: nfs
 spec:
   capacity:
-    storage: 1Mi
+    storage: 2Gi
   accessModes:
-    - ReadWriteMany
+    - ReadWriteOnce
   nfs:
     server: 172.17.4.101
-    path: "/"
+    path: "/export2"
