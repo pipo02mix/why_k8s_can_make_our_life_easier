@@ -5,7 +5,7 @@
 
 There are three kind of clusters.
 
-- [One is using (coreOS and vagrant recipe)[]. The problem is with new versions of coreOS
+- [One is using (coreOS and vagrant recipe). The problem is with new versions of coreOS
 there are some problems because the recipe is no more maintained by CoreOS.](https://github.com/pipo02mix/why_k8s_can_make_our_life_easier/tree/master/cluster/coreos)
 
 - [Now CoreOS encourages use Tectonic as installer and tool to run Kubernetes. There are a free 
@@ -62,7 +62,7 @@ And now run a pod in the k8s cluster
 ```
  kubectl run -i --tty busybox --image=10.101.91.182:5000/busybox:latest --restart=Never -- sh 
 ```
-> This is IP (10.101.91.182) is the fix cluster Ip assigned to the registry (check the yaml)
+> This is IP (10.101.91.182) is the fix cluster IP assigned to the registry (check the yaml)
 
  ## Install helm
  
