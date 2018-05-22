@@ -11,7 +11,7 @@
 
 - Install required plugins
 ```
-vagrant plugin install vagrant-hostmaster vagrant-scp
+vagrant plugin install vagrant-hostmanager vagrant-scp
 ```
 - Provision and start the cluster
 ```
