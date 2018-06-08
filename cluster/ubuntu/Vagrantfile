@@ -10,6 +10,10 @@ POD_CIDR = "192.168.0.0/16"
 #Token needed by kubeadm to create the cluster
 KUBETOKEN = "c019ee.968a33e7d8e6ba0e"
 
+script = <<SCRIPT
+echo "10.101.91.182 docker.for.mac.localhost" | tee -a /etc/hosts
+SCRIPT
+
 Vagrant.configure("2") do |config|
   config.vm.box = BOX_IMAGE
   config.vm.box_check_update = false
@@ -43,7 +47,8 @@ Vagrant.configure("2") do |config|
       subconfig.vm.hostname = "node#{i}"
       subconfig.vm.network :private_network, ip: NODE_IP + "#{i + 10}"
       subconfig.vm.provision :shell, path: "./node.sh", env: {"KUBETOKEN" => KUBETOKEN, "MASTER_IP" => MASTER_IP}
-      subconfig.vm.provision :shell, inline: "sudo echo '{ \"insecure-registries\" : [\"10.101.91.182:5000\"] }' > /etc/docker/daemon.json"
+      subconfig.vm.provision :shell, inline: "sudo echo '{ \"insecure-registries\" : [\"10.101.91.182:5000\", \"docker.for.mac.localhost:5000\"] }' > /etc/docker/daemon.json"
+      subconfig.vm.provision :shell, :inline => script
     end
   end
   # END NODE
