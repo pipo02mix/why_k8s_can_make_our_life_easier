@@ -47,3 +47,6 @@ frontend-app-6d4888f8cb-wwlrd   2/2       Running   0          52s
 ```
 
 Now ssh again to de node after taking the new backend pod IP and try to catch the request payload. You will not see anything, traffic is encripted.
+
+We can also observed the certs generated and injected in the pod running 
+` kubectl exec $(kubectl get pod -l app=frontend-app -o jsonpath={.items..metadata.name}) -c istio-proxy -- ls /etc/certs`
