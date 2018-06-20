@@ -50,3 +50,19 @@ Now ssh again to de node after taking the new backend pod IP and try to catch th
 
 We can also observed the certs generated and injected in the pod running 
 ` kubectl exec $(kubectl get pod -l app=frontend-app -o jsonpath={.items..metadata.name}) -c istio-proxy -- ls /etc/certs`
+
+
+1) Route shifting
+
+First let's expose the frontend in istio ingress
+
+```
+istioctl create gateway.yaml
+```
+
+Now deploy the second version of the backend v2.
+And configure the virtual service sharing the traffic between the services.
+
+```
+istioctl create virtual_service_50.yaml
+```
