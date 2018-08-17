@@ -12,3 +12,4 @@ Guide to explain kubernetes concepts through examples ( [slides](https://pipo02m
 4) [Service: Connect apps through cluster nodes thanks to services](/steps/4/README.md)
 5) [Ingress: How connect with the outside world](/steps/5/README.md)
 6) [Persisten Volumes: Playing with NFS](/steps/6/README.md)
+10) [Istio: Tame your microservice architecture](/steps/10/README.md)

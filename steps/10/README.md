@@ -37,7 +37,7 @@ The backend pod IP can be get it running
 `kubectl get pods --namespace default -l app=backend-app -o wide | tail -n 1 | awk '{print $6; }'`
 
 The output you will see is something like
-````
+```
     0x00c0:  2267 7265 7474 696e 6773 223a 2248 6920  "grettings":"Hi.
 	0x00d0:  5447 4e20 6d65 6574 7570 227d 0d0a 300d  ISTIO.WORKSHOP"}..0.
 ```
