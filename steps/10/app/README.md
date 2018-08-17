@@ -1,5 +1,5 @@
 
-Installing some apps using draft
+**Installing some apps using draft**
 
 To install draft with Mac just run (or go [here](https://github.com/Azure/draft/releases))
 `brew tap azure/draft && brew install draft`
