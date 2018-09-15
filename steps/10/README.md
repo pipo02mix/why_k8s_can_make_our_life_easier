@@ -1,5 +1,5 @@
 
-Service Mesh - Istio
+# Service Mesh - Istio
 
 ## Prerequisites
 
@@ -7,9 +7,11 @@ Service Mesh - Istio
 - [Be sured to have running and configured helm and a private registry](/steps/1/README.md)
 - [Configure some apps before install the service mesh](/steps/10/app/README.md)
 
-Now that we have run it out app in kubernetes, let's deploy istio into the cluster.
+## 0. Deploy Istio in our cluster
 
-We will use helm to install Istio
+Now that we have running a kubernetes cluster with helm configured and a registry installed, let's deploy istio into the cluster. Ideally you have to have the apps also deployed so we can compare how they behaves with and without the service mesh.
+
+For the installation, we will leverage in helm to deploy Istio easily
 ```
 # Check out the code and move to the first version
 git clone https://github.com/istio/istio.git
