@@ -4,7 +4,7 @@
 ## Prerequisites
 
 - [Install a multi node cluster in your machine](/cluster/ubuntu/README.md)
-- [Be sured to have running and configured helm and a private registry](/steps/1/README.md)
+- [Be sured to have running and configured helm and a private registry](/steps/0#install-a-self-contained-registry)
 - [Configure some apps before install the service mesh](/steps/10/app/README.md)
 
 ## 0. Deploy Istio in our cluster
