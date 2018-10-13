@@ -12,7 +12,7 @@ To make easier the deployment and development I use draft (ctl) which speed the 
 - Now configure the registry to use the internal one
 `draft config set registry docker.for.mac.localhost:5000`
 
-## Simple app (frontend, backend , db)
+## Simple app (frontend -> backend )
 
 - Deploy the backend to the cluster. Enter in `backend` folder and run
 `draft up`
