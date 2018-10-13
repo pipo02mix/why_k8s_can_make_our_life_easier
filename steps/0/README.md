@@ -33,7 +33,7 @@ the cluster. Finally, a daemonset is deployed too for setting a registry proxy s
 
 ```
 $ kubectl apply -f registry.yaml
-
+```
 
 Now with this command we get the registry pod name
 
