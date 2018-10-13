@@ -27,21 +27,25 @@ kubectl get pod -n kube-system
 
 ## Install a self contained registry
 
-We use  registry.yaml inside templates folder to load  the registry. Inside there is a deployment
-with one replica that define the actual registry container. There is a service to make it available along
-the cluster. And also a daemon set with a registry proxy so every node will have endpoint to make forwarding works.
+We use  [registry.yaml](/cluster/registry.yaml) inside `cluster` folder to run  the registry. Inside there is a deployment
+with one replica that define the actual registry container. Also, there is a service to make it available along
+the cluster. Finally, a daemonset is deployed too for setting a registry proxy so every node can pull from it.
+
+```
+$ kubectl apply -f registry.yaml
+
 
 Now with this command we get the registry pod name
 
 ```
-export REGISTRY_POD=$(kubectl get pods --namespace kube-system -l k8s-app=kube-registry-upstream \
+$ export REGISTRY_POD=$(kubectl get pods --namespace kube-system -l k8s-app=kube-registry-upstream \
     -o template --template '{{range .items}}{{.metadata.name}} {{.status.phase}}{{"\n"}}{{end}}' \
     | grep Running | head -1 | cut -f1 -d' ')
 ```
 
 And now we forward the pod registry port to host machine.
 ```
-kubectl port-forward --namespace kube-system $REGISTRY_POD 5000:5000 &
+$ kubectl port-forward --namespace kube-system $REGISTRY_POD 5000:5000 &
 ```
 
 In case of using mac, please add `docker.for.mac.localhost:5000` in the insecure
@@ -52,15 +56,15 @@ Now we should be able to push form our host (local) and pull from
 the nodes. Let's try it.
 
 ```
-docker pull busybox
-docker tag busybox docker.for.mac.localhost:5000/busybox:latest
-docker push docker.for.mac.localhost:5000/busybox:latest
+$ docker pull busybox
+$ docker tag busybox docker.for.mac.localhost:5000/busybox:latest
+$ docker push docker.for.mac.localhost:5000/busybox:latest
 ```
 > localhost for Linux users
 
 And now run a pod in the k8s cluster
 ```
- kubectl run -i --tty busybox --image=10.101.91.182:5000/busybox:latest --restart=Never -- sh 
+$ kubectl run -i --tty busybox --image=10.101.91.182:5000/busybox:latest --restart=Never -- sh 
 ```
 > This is IP (10.101.91.182) is the fix cluster IP assigned to the registry (check the yaml)
 
@@ -77,9 +81,9 @@ Helm offers a client for run the actions and a server running as pod to interpre
 server is called Tiller and needs to run a [service account](https://kubernetes.io/docs/tasks/configure-pod-container/configure-service-account/) with the right permissions.
  
 ```
-kubectl -n kube-system create sa tiller
-kubectl create clusterrolebinding tiller --clusterrole cluster-admin --serviceaccount=kube-system:tiller
-helm init --service-account tiller
+$ kubectl -n kube-system create sa tiller
+$ kubectl create clusterrolebinding tiller --clusterrole cluster-admin --serviceaccount=kube-system:tiller
+$ helm init --service-account tiller
 ``` 
 
 Helm client uses kubeconfig for connecting with kubernetes.
