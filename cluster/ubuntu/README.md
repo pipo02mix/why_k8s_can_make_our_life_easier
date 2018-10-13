@@ -28,3 +28,8 @@ vagrant scp master:/etc/kubernetes/admin.conf ./kubeconfig
 ```
 kubectl get po --kubeconfig ./kubeconfig
 ```
+
+- Export a environment variable to make the kubeconfig the default one
+```
+export KUBECONFIG=$PWD/.kubeconfig
+```
