@@ -35,7 +35,7 @@ the cluster. Finally, a daemonset is deployed too for setting a registry proxy s
 $ kubectl apply -f registry.yaml
 ```
 
-Now with this command we get the registry pod name
+Now we need to expose the registry outside the VMs in order to push the images we generate in our host.
 
 ```
 $ export REGISTRY_POD=$(kubectl get pods --namespace kube-system -l k8s-app=kube-registry-upstream \
@@ -43,30 +43,24 @@ $ export REGISTRY_POD=$(kubectl get pods --namespace kube-system -l k8s-app=kube
     | grep Running | head -1 | cut -f1 -d' ')
 ```
 
-And now we forward the pod registry port to host machine.
+Thanks to `port-forward` command we expose the registry in the port `5000`.
 ```
-$ kubectl port-forward --namespace kube-system $REGISTRY_POD 5000:5000 &
+$ kubectl port-forward --namespace kube-system $REGISTRY_POD 5000:5000 > /dev/null 2>&1 &
 ```
 
-In case of using mac, please add `docker.for.mac.localhost:5000` in the insecure
-registry list so docker daemon will run against the local interface.
+Finally, you need to add `docker.for.mac.localhost:5000` in the insecure
+registry list so docker daemon will know were the registry.
 
-
-Now we should be able to push form our host (local) and pull from
-the nodes. Let's try it.
-
+Let's push a iamge to the registry to verify everything works as expected.
 ```
 $ docker pull busybox
 $ docker tag busybox docker.for.mac.localhost:5000/busybox:latest
 $ docker push docker.for.mac.localhost:5000/busybox:latest
 ```
-> localhost for Linux users
 
-And now run a pod in the k8s cluster
-```
-$ kubectl run -i --tty busybox --image=10.101.91.182:5000/busybox:latest --restart=Never -- sh 
-```
-> This is IP (10.101.91.182) is the fix cluster IP assigned to the registry (check the yaml)
+For Linux, it should work out of the box. 
+
+[Open an issue](https://github.com/pipo02mix/why_k8s_can_make_our_life_easier/issues/new) in case something fails for you.
 
  ## Install helm
  
