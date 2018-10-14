@@ -5,7 +5,7 @@ const requestHandler = (request, response) => {
   console.log(request.url)
   response.writeHeader(200, {"Content-Type": "application/json"}); 
   response.end(JSON.stringify({
-      grettings: "Hi ISTIO WORKSHOP"
+      grettings: "Hi Istio workshop from v1"
   }))
 }
 

@@ -7,25 +7,31 @@
 - [Be sured to have running and configured helm and a private registry](/steps/0#install-a-self-contained-registry)
 - [Configure some apps before install the service mesh](/steps/10/app/README.md)
 
-## 0. Deploy Istio in our cluster
+Afterwards you should have running a cluster of three nodes (one master and two workers), with Kubernetes installed on it. Also there is a registry running exposing an endpoint in every node to allow container runtime to pull images inside the cluster. We have port forward the registry to be able to push images to the aforementioned registry. At the same time, Helm has been configured in the cluster help maitain our application. Finally, we have used `draft` to build and deploy the example application. It means we are ready to start our journey through the Istio world.
 
-Now that we have running a kubernetes cluster with helm configured and a registry installed, let's deploy istio into the cluster. Ideally you have to have the apps also deployed so we can compare how they behaves with and without the service mesh.
+## 0. Deploy Istio in our cluster
 
 For the installation, we will leverage in helm to deploy Istio easily
 ```
-# Check out the code and move to the first version
-git clone https://github.com/istio/istio.git
-git checkout 1.0.0
+# Get the latest version of the project 
+$ curl -L https://git.io/getLatestIstio | sh -
 
 # Install Custom Resources first
-kubectl apply -f install/kubernetes/helm/istio/templates/crds.yaml
+$ kubectl apply -f install/kubernetes/helm/istio/templates/crds.yaml
 
 # Install Istio componentskubectl get validatingwebhookconfiguration -o yaml
-helm install install/kubernetes/helm/istio --name istio --namespace istio-system 
+$ helm install install/kubernetes/helm/istio --name istio --namespace istio-system 
 ```
-it creates all custom resources and services to manage the service mesh
+It creates all custom resources and services to manage the service mesh
 
-Let's see now the powerness of istio.
+Let's check all components coming up correctly
+```
+$ kubectl get pod -n istio-system -w
+```
+
+Once all components are on good shape, we can said Istio is ready for playing!
+
+Let's start to see the powerness of istio.
 
 ## 1. Security - transparent mutual tls
 
