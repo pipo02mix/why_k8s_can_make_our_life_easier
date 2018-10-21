@@ -16,6 +16,7 @@ spec:
         draft: {{ default "draft-app" .Values.draft }}
         app: {{ template "fullname" . }}
     spec:
+      serviceAccount: frontend
       hostAliases:
       - hostnames: 
         - docker.for.mac.localhost

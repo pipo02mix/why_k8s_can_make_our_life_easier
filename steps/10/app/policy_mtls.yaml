@@ -1,0 +1,19 @@
+apiVersion: "authentication.istio.io/v1alpha1"
+kind: "Policy"
+metadata:
+  name: "backend-app"
+spec:
+  targets:
+  - name: backend-app
+  peers:
+  - mtls: {}
+---
+apiVersion: "authentication.istio.io/v1alpha1"
+kind: "Policy"
+metadata:
+  name: "frontend-app"
+spec:
+  targets:
+  - name: frontend-app
+  peers:
+  - mtls: {}
