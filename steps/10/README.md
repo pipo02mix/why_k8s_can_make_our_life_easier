@@ -106,37 +106,88 @@ Before apply the policy, lets verify it works as intendeed. We can first interce
 ```
 $ vagrant ssh node1
 
-(node1) $ sudo tcpdump -nnXs 0 'src host <backend pod IP> and port 80' | grep Istio -B1
+(node1) $ sudo tcpdump -nnXs 0 'host <backend pod IP>' -vv | grep Istio 
 ```
 
 __Note:__ The backend pod IP can be get it running `kubectl get pods --namespace default -l app=backend-app -o wide | tail -n 1 | awk '{print $6; }'`
 
-Then you can ssh to the other node a curl the endpoint
-```
-$ vagrant ssh node2
-
-(node2) $ curl http://<backend pod IP>
-```
 
 The output you will see is something like
 ```
-    0x00c0:  2267 7265 7474 696e 6773 223a 2248 6920  "grettings":"Hi.
-	0x00d0:  5447 4e20 6d65 6574 7570 227d 0d0a 300d  Istio workshop from v1"}..0.
+  	{"grettings":"Hi Istio workshop from v1"}
+50 packets captured
 ```
 
-Now let's apply the policy
+Now let's apply the policy and a destination rule which enforce mutal TLS between frontend and backend:
 
 ```
 $ kubectl apply -f app/policy_mtls.yaml
 ```
 
-Now try to run the curl command and it will not work because now our backend only accept tls connections.
+To check the authentication is set correctly you can run the below command and check the status column:
 
-The policy force the backend servece to be accessed using mutual tls. If we curl from a istio proxy it should work
 ```
-$ kubectl exec $(kubectl get pod -l app=frontend-app -o jsonpath={.items..metadata.name}) -c istio-proxy -- curl https://backend-app -s --key /etc/certs/key.pem --cert /etc/certs/cert-chain.pem --cacert /etc/certs/root-cert.pem -k
+$ istioctl authn tls-check backend-app.default.svc.cluster.local
+HOST:PORT           STATUS     SERVER     CLIENT     AUTHN POLICY            DESTINATION RULE
+backend-app...:80     OK        mTLS       mTLS     backend-app/default     backend-rule/default
 ```
 
+Now you can run `tcpdump` again in the node and the output will be empty. TLS encryption is doing its work :).
+
+Another nice probe to perform to understand it better, it is to curl from the frontend istio proxy to the backend with the right certs:
+```
+$ kubectl exec $(kubectl get pod -l app=frontend-app -o jsonpath={.items..metadata.name}) -c istio-proxy -- curl https://backend-app:80 -s --key /etc/certs/key.pem --cert /etc/certs/cert-chain.pem --cacert /etc/certs/root-cert.pem -k
+
+{"grettings":"Hi Istio workshop from v1"}%
+```
+
+### 1.2 RBAC within services
+
+Kubernetes is shipped with RBAC included. It means that Kubernetes generates a token for the services run in its platform. By default all services use same default token, and it is used to authenticate and authorize against the Kuberentes API. 
+
+But it can not be used to configure authorization between services. Istio extends Kubernetes RBAC to make it possible.
+
+Before starting to set the rules, let's deploy a new version of the backend to make the later probes more meaningful.
+
+```
+$ cd backend2 && draft up
+```
+
+Let's make a quick test and access from the the frontend to the backend version 1. It must work:
+```
+$ kubectl exec $(kubectl get pod -l app=frontend-app -o jsonpath={.items..metadata.name}) -c istio-proxy -- curl https://backend-app:80 -s --key /etc/certs/key.pem --cert /etc/certs/cert-chain.pem --cacert /etc/certs/root-cert.pem -k
+
+{"grettings":"Hi Istio workshop from v2"}
+```
+
+But if we enable RBAC in the namespace:
+```
+$ kubectl apply -f rbac.yaml
+```
+
+Now the curl command will fail:
+```
+$ kubectl exec $(kubectl get pod -l app=frontend-app -o jsonpath={.items..metadata.name}) -c istio-proxy -- curl https://backend-app:80 -s --key /etc/certs/key.pem --cert /etc/certs/cert-chain.pem --cacert /etc/certs/root-cert.pem -k
+
+RBAC: access denied
+```
+
+All inner communication in the `default` namespace it is not authorized. Next step is allow the communication from frontend to the backend version 2 as example.
+
+```
+$ kubectl apply -f authZ.yaml
+```
+
+And now the curl command exectued for both backends return:
+````
+$ kubectl exec $(kubectl get pod -l app=frontend-app -o jsonpath={.items..metadata.name}) -c istio-proxy -- curl https://backend-app:80 -s --key /etc/certs/key.pem --cert /etc/certs/cert-chain.pem --cacert /etc/certs/root-cert.pem -k
+RBAC: access denied%                                                                            
+
+$ kubectl exec $(kubectl get pod -l app=frontend-app -o jsonpath={.items..metadata.name}) -c istio-proxy -- curl https://backendv2-app:80 -s --key /etc/certs/key.pem --cert /etc/certs/cert-chain.pem --cacert /etc/certs/root-cert.pem -k
+{"grettings":"Hi Istio workshop from v2"}%
+```
+
+The authorization system is much complex. As example you can authorize finer grained access to your services, and only enable authorization for a single service instead all namespace. Also it can be applied to external traffic (user).
 
 ## 2. Route shifting
 
