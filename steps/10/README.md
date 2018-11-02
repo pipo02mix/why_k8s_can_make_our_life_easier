@@ -179,7 +179,7 @@ $ kubectl apply -f authZ.yaml
 ```
 
 And now the curl command exectued for both backends return:
-````
+```
 $ kubectl exec $(kubectl get pod -l app=frontend-app -o jsonpath={.items..metadata.name}) -c istio-proxy -- curl https://backend-app:80 -s --key /etc/certs/key.pem --cert /etc/certs/cert-chain.pem --cacert /etc/certs/root-cert.pem -k
 RBAC: access denied%                                                                            
 
