@@ -48,7 +48,7 @@ Thanks to `port-forward` command we expose the registry in the port `5000`.
 $ kubectl port-forward --namespace kube-system $REGISTRY_POD 5000:5000 > /dev/null 2>&1 &
 ```
 
-Finally, you need to add `docker.for.mac.localhost:5000` in the insecure
+Finally, you need to add `docker.for.mac.localhost:5000` (`localhost` in linux) in the insecure
 registry list so docker daemon will know were the registry.
 
 Let's push a iamge to the registry to verify everything works as expected.
@@ -57,6 +57,8 @@ $ docker pull busybox
 $ docker tag busybox docker.for.mac.localhost:5000/busybox:latest
 $ docker push docker.for.mac.localhost:5000/busybox:latest
 ```
+
+__Note:__ If you are running on Linux, replace `docker.for.mac.localhost` for `localhost`. Docker in mac runs in a VM and expose it via DNS.
 
 For Linux, it should work out of the box. 
 
