@@ -2,7 +2,8 @@ const http = require('http')
 const port = 80
 
 const requestHandler = (request, response) => {
-  console.log(request.url)
+  console.log('coming http url: ' + request.url)
+  console.log('coming http headers: ', request.headers);
   response.writeHeader(200, {"Content-Type": "application/json"}); 
   response.end(JSON.stringify({
       grettings: "Hi Istio workshop from v1"

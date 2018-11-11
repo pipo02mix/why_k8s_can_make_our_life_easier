@@ -20,7 +20,7 @@ $ curl -L https://git.io/getLatestIstio | sh -
 $ kubectl apply -f install/kubernetes/helm/istio/templates/crds.yaml
 
 # Install Istio componentskubectl get validatingwebhookconfiguration -o yaml
-$ helm install install/kubernetes/helm/istio --name istio --namespace istio-system 
+$ helm install install/kubernetes/helm/istio --name istio --namespace istio-system --set tracing.enabled=true --set grafana.enabled=true
 ```
 It creates all custom resources and services to manage the service mesh
 
@@ -206,4 +206,6 @@ istioctl create virtual_service_50.yaml
 
 ## Troubleshoutting 
 
-- Check always all components in the `istio-system` are running correctly. In case Pilot is `Pending` because of resources remove the limits, for our demo is enough.
+- Check always all components in the `istio-system` are running correctly. In case Pilot is `Pending` because of resources, remove the limits, for the demo purpose is enough.
+
+- In case executing curl commands return `connection refused`, ensure port and IP address are correct and the ingress gateway service (in `istio-namespace`) is created with type NodePort.

@@ -1,0 +1,10 @@
+[environments]
+  [environments.development]
+    name = "frontendv2"
+    namespace = "default"
+    wait = true
+    watch = true
+    watch-delay = 8
+    auto-connect = false
+    dockerfile = ""
+    chart = ""

@@ -2,11 +2,16 @@ const http = require('http')
 const port = 3000
 
 const requestHandler = (request, response) => {
-  get_data_from_backend(function (body) {
-    var body_parsed = JSON.parse(body);
+  if (request.url == '/') {
     response.writeHeader(200, {"Content-Type": "text/html"}); 
-    response.end('<div style="width:500px;height:500px;margin:0 auto;position:absolute;left:50%;top:50%;margin-left:-250px;margin-top:-250px;font-size: 45px;">' + body_parsed.grettings + '</div>')
-  });
+    response.end('<div style="width:500px;height:500px;margin:0 auto;position:absolute;left:50%;top:50%;margin-left:-250px;margin-top:-250px;font-size: 45px;">Flat HTML from frontend</div>')
+  } else {
+    get_data_from_backend(function (body) {
+      var body_parsed = JSON.parse(body);
+      response.writeHeader(200, {"Content-Type": "text/html"}); 
+      response.end('<div style="width:500px;height:500px;margin:0 auto;position:absolute;left:50%;top:50%;margin-left:-250px;margin-top:-250px;font-size: 45px;">' + body_parsed.grettings + '</div>')
+    });
+  }
 }
 
 const server = http.createServer(requestHandler)
@@ -32,10 +37,10 @@ var backend_options = {
 };
 
 function get_data_from_backend(cb) {
-  http.request(backend_options, function(res) {
-    res.setEncoding('utf8');
-    res.on('data', function (chunk) {
-      cb(chunk);
-    });
+  http.request(backend_options, function(response) {
+      response.setEncoding('utf8');
+      response.on('data', function (chunk) {
+        cb(chunk);
+      });
   }).end();
 }

@@ -15,6 +15,7 @@ spec:
       labels:
         draft: {{ default "draft-app" .Values.draft }}
         app: {{ template "fullname" . }}
+        version: v2
     spec:
       serviceAccount: backendv2
       containers:
