@@ -25,9 +25,16 @@ spec:
   http:
   - match:
     - uri:
-        prefix: /ui
+        prefix: /v1
     route:
     - destination:
         host: frontend-app
         port:
           number: 3000
+  - route:
+    - destination:
+        host: frontendv2-app
+        port:
+          number: 3000
+
+

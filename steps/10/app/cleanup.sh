@@ -5,7 +5,9 @@ kubectl delete virtualservices.networking.istio.io -n default --all
 kubectl delete authorization requestcontext -n istio-system
 kubectl delete rbac handler -n istio-system
 kubectl delete rule rbaccheck -n istio-system
+kubectl delete serviceentry --all -n default
 kubectl delete servicerole --all -n default
 kubectl delete servicerolebinding --all -n default
+kubectl delete rbacconfig --all -n default
 kubectl delete rbacs.config.istio.io --all -n default
 kubectl delete rbacs.config.istio.io --all -n default

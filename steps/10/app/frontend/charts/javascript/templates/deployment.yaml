@@ -15,6 +15,7 @@ spec:
       labels:
         draft: {{ default "draft-app" .Values.draft }}
         app: {{ template "fullname" . }}
+        version: v1
     spec:
       serviceAccount: frontend
       hostAliases:
