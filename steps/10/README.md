@@ -191,21 +191,193 @@ The authorization system is much complex. As example you can authorize finer gra
 
 ## 2. Route shifting
 
-First let's expose the frontend in istio ingress
+### 2.1 Ingress traffic
 
+Set the a hostname for the frontend
 ```
-istioctl create gateway.yaml
+$ vim edit /etc/hosts (in your machine)
+172.17.4.11     frontend.example.com
 ```
 
-Now deploy the second version of the backend v2.
-And configure the virtual service sharing the traffic between the services.
+Ensure ingress gateway service to use node port.
+```
+$ kubectl edit service istio-ingressgateway -n kube-system
+```
+The `type` must be `NodePort`. Otherwise we need to change it. Also we need to now which it is the allocated port in the host network.
+```
+$ export INGRESS_PORT=$(kubectl -n istio-system get service istio-ingressgateway -o jsonpath='{.spec.ports[?(@.name=="http2")].nodePort}')
 
+$ echo $INGRESS_PORT
 ```
-istioctl create virtual_service_50.yaml
+
+By default Istio deny all traffic in/out the cluster. In case we want to route the request to our frontends we need to define a couple of resources.
+
+
+First let's create a gateway which tells an ingress gateway envoy to listen to for a determined hostname, port and protocol.
+
+```yaml
+apiVersion: networking.istio.io/v1alpha3
+kind: Gateway
+metadata:
+  name: frontend-app-gateway
+spec:
+  selector:
+    istio: ingressgateway # use istio default controller
+  servers:
+  - port:
+      number: 80
+      name: http
+      protocol: HTTP
+    hosts:
+    - "*"
 ```
+
+Secondly, we need to create a `VirtualService` which will make use of the gatewaya and will route the traffic from it to the desired destionations.
+
+```yaml
+apiVersion: networking.istio.io/v1alpha3
+kind: VirtualService
+metadata:
+  name: frontend-app
+spec:
+  hosts:
+  - "*"
+  gateways:
+  - frontend-app-gateway
+  http:
+  - match:
+    - uri:
+        prefix: /v1
+    route:
+    - destination:
+        host: frontend-app
+        port:
+          number: 3000
+  - route:
+    - destination:
+        host: frontendv2-app
+        port:
+          number: 3000
+```
+
+At this point we should be able to see frontend version one in the URL `http://frontend.example.com:$INGRESS_PORT/v1` and second version on `http://frontend.example.com:$INGRESS_PORT/whatever_you_put`.
+
+### 2.2 Egress traffic
+
+For the egress traffic it happens the same, you need to enable via configuration the out going traffic. In the example apps, I added an call to an external service `api.openweathermap.org` to get the weather information of Mannheim. 
+
+As first step let's try to call the frontend url which access the weather system to see the results. Browsing to `http://frontend.example.com:31380/weather` it will give you an error.
+
+So in order to enable traffic out we need to define a `ServiceEntry` which allows requests going out to `api.openweathermap.org` for the whole mesh.
+
+```yaml
+apiVersion: networking.istio.io/v1alpha3
+kind: ServiceEntry
+metadata:
+  name: openweathermap
+spec:
+  hosts:
+  - api.openweathermap.org
+  ports:
+  - number: 80
+    name: http
+    protocol: HTTP
+  resolution: DNS
+  location: MESH_EXTERNAL
+```
+
+After submit this manifest to the Kubernetes API you should be able to see the intended data.
+
+### 2.3 Traffic shifting
+
+In this field the possibilities are endedless. We can do canary deployments, controlling traffic in really granular way. We can do shadow deployments, using a header to access to a new service version. Another option can be mirror traffic for testing purposes to a new release version.
+
+Here let's explore a couple of options. First one, it would be divide the traffic between different versions. To do that we use a `VirtualService`, as we have done before, but now we set another destination and a `weight` property to tell our proxy how much traffic they should forward and where.
+
+```yaml
+apiVersion: networking.istio.io/v1alpha3
+kind: VirtualService
+metadata:
+  name: backend-app
+spec:
+  hosts:
+  - backend-app
+  http:
+  - route:
+    - destination:
+        host: backendv2-app
+      weight: 50
+    - destination:
+        host: backend-app
+      weight: 50
+```
+
+You can play with the number and see how it works as expected (http://frontend.example.com:31380/v1).
+
+Another way to test a new service version it sneakily via request headers. As an example let's change our virtual service to something like
+
+```yaml
+apiVersion: networking.istio.io/v1alpha3
+kind: VirtualService
+metadata:
+  name: frontend-app
+spec:
+  hosts:
+  - "*"
+  gateways:
+  - frontend-app-gateway
+  http:
+  - match:
+    - headers:
+        device:
+          exact: android
+    route:
+    - destination:
+        host: frontendv2-app
+        port:
+          number: 3000
+  - route:
+    - destination:
+        host: frontend-app
+        port:
+          number: 3000
+```
+
+It will make all request goes to the frontend version one. Only requests with a header `device: android` will be redirected to new frontend version. You can use [modheader](https://chrome.google.com/webstore/detail/modheader/idgpnmonknjnojddfkpgkljpfnnfcklj?hl=en) in chrome to tune your request headers and being able to test it.
+
+### 2.4 Fault injection
+
+Last step in the traffic shifting is to make use of fault injection feature envoy provides. Sometimes we want to test the resilence of your micro services so this manner can be easily probed.
+
+```yaml
+apiVersion: networking.istio.io/v1alpha3
+kind: VirtualService
+metadata:
+  name: backend-app
+spec:
+  hosts:
+  - backend-app
+  http:
+  - fault:
+      abort:
+        httpStatus: 500
+        percent: 100
+    route:
+    - destination:
+        host: backend-app
+      weight: 100
+```
+
+Here we are generating HTTP 500 responses when backend service is called. As you can see the frontend one cannot handle right the errors as opposed to the second version
+
+# 3. Tracing and monitoring
+
+## 3.1 Tracing
+
+## 3.2 Monitoring
 
 ## Troubleshoutting 
 
 - Check always all components in the `istio-system` are running correctly. In case Pilot is `Pending` because of resources, remove the limits, for the demo purpose is enough.
 
-- In case executing curl commands return `connection refused`, ensure port and IP address are correct and the ingress gateway service (in `istio-namespace`) is created with type NodePort.
+- In case executing curl commands return `connection refused`, ensure port and IP address are  correct and the ingress gateway service (in `istio-namespace`) is created with type NodePort.

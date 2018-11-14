@@ -13538,10 +13538,6 @@ spec:
             value: "100"
           - name: PILOT_TRACE_SAMPLING
             value: "1"
-          resources:
-            requests:
-              cpu: 500m
-              memory: 2048Mi
             
           volumeMounts:
           - name: config-volume

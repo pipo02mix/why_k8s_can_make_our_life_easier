@@ -29,12 +29,12 @@ spec:
           exact: android
     route:
     - destination:
-        host: frontend-app
+        host: frontendv2-app
         port:
           number: 3000
   - route:
     - destination:
-        host: frontendv2-app
+        host: frontend-app
         port:
           number: 3000
 
