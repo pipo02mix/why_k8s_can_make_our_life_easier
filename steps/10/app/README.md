@@ -9,12 +9,12 @@ To make easier the deployment and development I use draft (ctl) which speed the 
 `brew tap azure/draft && brew install draft`
 [Other OS check here](https://github.com/Azure/draft/releases/tag/v0.15.0)
 
-- Now configure the registry to use the internal one
-`draft config set registry docker.for.mac.localhost:5000` (`localhost` in Linux OS)
-
 ## Simple app (frontend -> backend )
 
-- First sets up local environment to work with Draft running `draft init`.
+- First, Let's set up local environment to work with Draft running `draft init`.
+
+- Later, we need to configure the registry to use the internal one
+`draft config set registry docker.for.mac.localhost:5000` (`localhost` in Linux OS)
 
 - Deploy the backend to the cluster. Enter in `backend` folder and run
 `draft up`

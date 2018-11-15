@@ -20,7 +20,7 @@ $ curl -L https://git.io/getLatestIstio | sh -
 $ kubectl apply -f install/kubernetes/helm/istio/templates/crds.yaml
 
 # Install Istio componentskubectl get validatingwebhookconfiguration -o yaml
-$ helm install install/kubernetes/helm/istio --name istio --namespace istio-system --set tracing.enabled=true --set grafana.enabled=true
+$ helm install install/kubernetes/helm/istio --name istio --namespace istio-system --set tracing.enabled=true --set grafana.enabled=true --set servicegraph.enabled=true
 ```
 It creates all custom resources and services to manage the service mesh
 
