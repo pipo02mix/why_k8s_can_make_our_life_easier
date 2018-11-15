@@ -55,7 +55,6 @@ spec:
   - name: registry
     port: 5000
     protocol: TCP
-  clusterIP: 10.101.91.182
 ---
 apiVersion: extensions/v1beta1
 kind: DaemonSet

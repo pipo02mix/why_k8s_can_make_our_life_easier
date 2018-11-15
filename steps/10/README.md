@@ -496,3 +496,5 @@ And after generate some traffic we can check `http://localhost:8088/force/forceg
 $ sudo apt-get install ntpdate
 $ sudo ntpdate 1.ro.pool.ntp.org
 ```
+
+- If you have problems with pod security policies, please read [this](https://docs.giantswarm.io/guides/deploying-istio/#preparation).
