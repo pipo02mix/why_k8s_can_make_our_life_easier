@@ -374,10 +374,125 @@ Here we are generating HTTP 500 responses when backend service is called. As you
 
 ## 3.1 Tracing
 
+```bash
+$ kubectl port-forward -n istio-system $(kubectl get pod -n istio-system -l app=jaeger -o jsonpath='{.items[0].metadata.name}') 16686:16686 &
+```
+
 ## 3.2 Monitoring
+
+To make effictive the tracing we need to tweak a bit our code to transport the headers from one service to the next one. These are the header we are forwading downstream in our test applications (version 2).
+
+```
+x-request-id
+x-b3-traceid
+x-b3-spanid
+x-b3-parentspanid
+x-b3-sampled
+x-b3-flags
+x-ot-span-context
+```
+
+The mixers will send all this information to jaeger backend and we we can access the jaeger UI to analyze the traces and span.
+
+```bash
+$ kubectl port-forward -n istio-system $(kubectl get pod -n istio-system -l app=jaeger -o jsonpath='{.items[0].metadata.name}') 16686:16686 &
+``` 
+
+Another backend integrated with the mixer is prometheus. We can define our own metrics and wire it up with prometheus handler to create rules based on the attributes passed by proxys to mixer. Let's create a new metric
+
+```yaml
+apiVersion: "config.istio.io/v1alpha2"
+kind: metric
+metadata:
+  name: kbrequestsize
+  namespace: istio-system
+spec:
+  value: request.size | 0
+  dimensions:
+    connection_security_policy: conditional((context.reporter.kind | "inbound") ==
+      "outbound", "unknown", conditional(connection.mtls | false, "mutual_tls", "none"))
+    destination_app: destination.labels["app"] | "unknown"
+    ...
+    source_workload_namespace: source.workload.namespace | "unknown"
+```
+
+And a new prometheus handler for that metric
+
+```yaml
+apiVersion: "config.istio.io/v1alpha2"
+kind: prometheus
+metadata:
+  name: kbsizehandler
+  namespace: istio-system
+spec:
+  metrics:
+  - name: kb_request_size # Prometheus metric name
+    instance_name: kbrequestsize.metric.istio-system # Mixer instance name (fully-qualified)
+    kind: COUNTER
+    label_names:
+    - reporter
+    - source_app
+    - source_principal
+    - source_workload
+    - source_workload_namespace
+    - source_version
+    - destination_app
+    - destination_principal
+    - destination_workload
+    - destination_workload_namespace
+    - destination_version
+    - destination_service
+    - destination_service_name
+    - destination_service_namespace
+    - request_protocol
+    - response_code
+    - connection_security_policy
+```
+
+And then wire it up in a rule
+
+```yaml
+apiVersion: "config.istio.io/v1alpha2"
+kind: rule
+metadata:
+  name: kbrequestsizeprom
+  namespace: istio-system
+spec:
+  actions:
+  - handler: kbsizehandler.prometheus
+    instances:
+    - kbrequestsize.metric
+  match: context.protocol == "http"
+```
+
+So new we can generate some traffic and check the new metrics in prometheus.
+
+```bash
+$ kubectl -n istio-system port-forward $(kubectl -n istio-system get pod -l app=prometheus -o jsonpath='{.items[0].metadata.name}') 9090:9090 &
+``` 
+
+Also we can enable grafana in istio and it has a nice dashboard by default that shows some default istio metrics in a nice way.
+
+```bash
+$ kubectl -n istio-system port-forward $(kubectl -n istio-system get pod -l app=grafana -o jsonpath='{.items[0].metadata.name}') 3000:3000 &
+```
+
+Finally we can check the service graph tool that will allow us to see the dependencies between our micro services
+
+```bash
+$ kubectl -n istio-system port-forward $(kubectl -n istio-system get pod -l app=servicegraph -o jsonpath='{.items[0].metadata.name}') 8088:8088 &
+```
+
+And after generate some traffic we can check `http://localhost:8088/force/forcegraph.html` to see the graph with the services.
 
 ## Troubleshoutting 
 
 - Check always all components in the `istio-system` are running correctly. In case Pilot is `Pending` because of resources, remove the limits, for the demo purpose is enough.
 
 - In case executing curl commands return `connection refused`, ensure port and IP address are  correct and the ingress gateway service (in `istio-namespace`) is created with type NodePort.
+
+- In case Prometheus complaints about time differences between browser and nodes, we can run ntp server to sync the date, ssh to the nodes and execute
+```bash
+$ sudo apt-get install ntpdate
+$ sudo ntpdate 1.ro.pool.ntp.org
+```

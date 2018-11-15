@@ -13537,7 +13537,7 @@ spec:
           - name: PILOT_PUSH_THROTTLE_COUNT
             value: "100"
           - name: PILOT_TRACE_SAMPLING
-            value: "1"
+            value: "100"
             
           volumeMounts:
           - name: config-volume
@@ -15058,4 +15058,100 @@ spec:
         http2MaxRequests: 10000
         maxRequestsPerConnection: 10000
 ---
-
+# Source: istio/charts/servicegraph/templates/service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: servicegraph
+  namespace: istio-system
+  annotations:
+  labels:
+    app: servicegraph
+    chart: servicegraph-1.0.3
+    release: istio
+    heritage: Tiller
+spec:
+  type: ClusterIP
+  ports:
+    - port: 8088
+      targetPort: 8088
+      protocol: TCP
+      name: http
+  selector:
+    app: servicegraph
+---
+# Source: istio/charts/servicegraph/templates/deployment.yaml
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: servicegraph
+  namespace: istio-system
+  labels:
+    app: servicegraph
+    chart: servicegraph-1.0.3
+    release: istio
+    heritage: Tiller
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: servicegraph
+      annotations:
+        sidecar.istio.io/inject: "false"
+        scheduler.alpha.kubernetes.io/critical-pod: ""
+    spec:
+      containers:
+        - name: servicegraph
+          image: "docker.io/istio/servicegraph:1.0.3"
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 8088
+          args:
+          - --prometheusAddr=http://prometheus:9090
+          livenessProbe:
+            httpGet:
+              path: /graph
+              port: 8088
+          readinessProbe:
+            httpGet:
+              path: /graph
+              port: 8088
+          resources:
+            requests:
+              cpu: 10m
+            
+      affinity:      
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+            - matchExpressions:
+              - key: beta.kubernetes.io/arch
+                operator: In
+                values:
+                - amd64
+                - ppc64le
+                - s390x
+          preferredDuringSchedulingIgnoredDuringExecution:
+          - weight: 2
+            preference:
+              matchExpressions:
+              - key: beta.kubernetes.io/arch
+                operator: In
+                values:
+                - amd64
+          - weight: 2
+            preference:
+              matchExpressions:
+              - key: beta.kubernetes.io/arch
+                operator: In
+                values:
+                - ppc64le
+          - weight: 2
+            preference:
+              matchExpressions:
+              - key: beta.kubernetes.io/arch
+                operator: In
+                values:
+                - s390x
+---
